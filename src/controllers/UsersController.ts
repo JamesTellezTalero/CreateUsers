@@ -39,13 +39,38 @@ class UsersController{
     }
     
     async ChangePassword(req:Request, res:Response){
-        console.log("ChangePassword");
-        return res.status(200).json({msg:"ChangePassword"});
+        try {
+            let id = req.body.id;
+            let newPass:string = req.body.newPass;
+            if(!newPass){
+                throw "No hemos recibido la contraseña nueva";
+            }
+            let oldPass:string = req.body.oldPass;
+            if(!oldPass){
+                throw "No hemos recibido la contraseña actual";
+            }
+            let user = await UsersB.GetById(`${id}`);
+            if(!user){
+                throw "El id enviado no existe";
+            }
+            let data = await UsersB.ChangePassword(user, newPass, oldPass);
+            console.log("ChangePassword");
+            return res.status(200).json({msg:"ChangePassword", data});
+        } catch (error) {
+            console.log(error);
+            return res.status(404).json({msg:"Changen´t Password", data: error});
+        }
     }
     
     async RestorePassword(req:Request, res:Response){
+        let email = req.body.email;
+        let user = await UsersB.GetByEmail(`${email}`);
+        if(!user){
+            throw "El email enviado no existe";
+        }
+        let data = await UsersB.RestorePassword(user);
         console.log("RestorePassword");
-        return res.status(200).json({msg:"RestorePassword"});
+        return res.status(200).json({msg:"RestorePassword", data});
     }
     
     async UpdateImage(req:Request, res:Response){
